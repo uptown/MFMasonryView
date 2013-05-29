@@ -8,6 +8,9 @@
 
 #import "MFArrayProvider.h"
 
+@interface MFArrayProvider (){
+}
+@end
 @implementation MFArrayProvider
 
 - (id)objectAtIndex:(NSUInteger)index{
@@ -36,7 +39,7 @@
 - (id)initWithContentsOfFile:(NSString *)file{
     
     NSString *path = [[NSBundle mainBundle] pathForResource:file ofType:@"plist"];
-    NSArray *data = [NSArray arrayWithContentsOfFile:path];
+    NSArray *data = [NSMutableArray arrayWithContentsOfFile:path];
     
     return[self initWithArray:data];
 }
@@ -45,11 +48,6 @@
 }
 
 - (BOOL)getMoreProcess:(id)data{
-    [_defaultStorage addObjectsFromArray:data];
-    return YES;
-}
-- (BOOL)refreshProcess:(id)data{
-    [_defaultStorage removeAllObjects];
     [_defaultStorage addObjectsFromArray:data];
     return YES;
 }

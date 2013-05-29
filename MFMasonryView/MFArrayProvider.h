@@ -10,6 +10,7 @@
 
 
 @interface MFArrayProvider : MFDataProvider{
+@protected
     NSMutableArray *_defaultStorage;
 }
 

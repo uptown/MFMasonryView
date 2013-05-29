@@ -24,14 +24,15 @@
 #define kMaxArrowSize       3
 #define kMinArrowRadius     5
 #define kMaxArrowRadius     7
-#define kMaxDistance        53
+#define kMaxDistance        45
+
 
 @interface ODRefreshControl ()
 
 @property (nonatomic, readwrite) BOOL refreshing;
 @property (nonatomic, assign) UIScrollView *scrollView;
 @property (nonatomic, assign) UIEdgeInsets originalContentInset;
-
+@property (nonatomic, assign) CGFloat adjustY;
 @end
 
 @implementation ODRefreshControl
@@ -56,6 +57,7 @@ static inline CGFloat lerp(CGFloat a, CGFloat b, CGFloat p)
     self = [super initWithFrame:CGRectMake(0, -(kTotalViewHeight + scrollView.contentInset.top), scrollView.frame.size.width, kTotalViewHeight)];
     
     if (self) {
+        self.adjustY = 0;
         self.scrollView = scrollView;
         self.originalContentInset = scrollView.contentInset;
         
@@ -63,9 +65,10 @@ static inline CGFloat lerp(CGFloat a, CGFloat b, CGFloat p)
         [scrollView addSubview:self];
         [scrollView addObserver:self forKeyPath:@"contentOffset" options:NSKeyValueObservingOptionNew context:nil];
         [scrollView addObserver:self forKeyPath:@"contentInset" options:NSKeyValueObservingOptionNew context:nil];
+        [scrollView addObserver:self forKeyPath:@"scrollIndicatorInsets" options:NSKeyValueObservingOptionNew context:nil];
         
         _activity = activity ? activity : [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
-        _activity.center = CGPointMake(floor(self.frame.size.width / 2), floor(self.frame.size.height / 2));
+        _activity.center = CGPointMake(floor(self.frame.size.width / 2), floor(self.frame.size.height / 2) + self.adjustY);
         _activity.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
         _activity.alpha = 0;
         if ([_activity respondsToSelector:@selector(startAnimating)]) {
@@ -108,6 +111,7 @@ static inline CGFloat lerp(CGFloat a, CGFloat b, CGFloat p)
 {
     [self.scrollView removeObserver:self forKeyPath:@"contentOffset"];
     [self.scrollView removeObserver:self forKeyPath:@"contentInset"];
+    [self.scrollView removeObserver:self forKeyPath:@"scrollIndicatorInsets"];
     self.scrollView = nil;
 }
 
@@ -123,6 +127,7 @@ static inline CGFloat lerp(CGFloat a, CGFloat b, CGFloat p)
     if (!newSuperview) {
         [self.scrollView removeObserver:self forKeyPath:@"contentOffset"];
         [self.scrollView removeObserver:self forKeyPath:@"contentInset"];
+        [self.scrollView removeObserver:self forKeyPath:@"scrollIndicatorInsets"];
         self.scrollView = nil;
     }
 }
@@ -172,11 +177,15 @@ static inline CGFloat lerp(CGFloat a, CGFloat b, CGFloat p)
         }
         return;
     }
+    if ([keyPath isEqualToString:@"scrollIndicatorInsets"]) {
+        self.adjustY = [[change objectForKey:@"new"] UIEdgeInsetsValue].top;
+        return;
+    }
     
     if (!self.enabled || _ignoreOffset) {
         return;
     }
-
+    
     CGFloat offset = [[change objectForKey:@"new"] CGPointValue].y + self.originalContentInset.top;
     
     if (_refreshing) {
@@ -187,9 +196,9 @@ static inline CGFloat lerp(CGFloat a, CGFloat b, CGFloat p)
             [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
             _shapeLayer.position = CGPointMake(0, kMaxDistance + offset + kOpenedViewHeight);
             [CATransaction commit];
-
-            _activity.center = CGPointMake(floor(self.frame.size.width / 2), MIN(offset + self.frame.size.height + floor(kOpenedViewHeight / 2), self.frame.size.height - kOpenedViewHeight/ 2));
-
+            
+            _activity.center = CGPointMake(floor(self.frame.size.width / 2), MIN(offset + self.frame.size.height + floor(kOpenedViewHeight / 2), self.frame.size.height - kOpenedViewHeight/ 2) + self.adjustY);
+            
             _ignoreInset = YES;
             _ignoreOffset = YES;
             
@@ -234,7 +243,7 @@ static inline CGFloat lerp(CGFloat a, CGFloat b, CGFloat p)
                 _canRefresh = YES;
                 _didSetInset = NO;
             } else {
-                dontDraw = YES;
+                // dontDraw = YES;
             }
         } else {
             if (offset >= 0) {
@@ -242,7 +251,7 @@ static inline CGFloat lerp(CGFloat a, CGFloat b, CGFloat p)
                 dontDraw = YES;
             }
         }
-        if (offset > 0 && _lastOffset > offset && !self.scrollView.isTracking) {
+        if (offset > 0 && _lastOffset > offset + 20 && !self.scrollView.isTracking) {
             // If we are scrolling too fast, don't draw, and don't trigger unless the scrollView bounced back
             _canRefresh = NO;
             dontDraw = YES;
@@ -284,7 +293,8 @@ static inline CGFloat lerp(CGFloat a, CGFloat b, CGFloat p)
             triggered = YES;
         }
     }
-    
+    bottomOrigin.y = bottomOrigin.y  + self.adjustY;
+    topOrigin.y = topOrigin.y + self.adjustY;
     //Top semicircle
     CGPathAddArc(path, NULL, topOrigin.x, topOrigin.y, currentTopRadius, 0, M_PI, YES);
     
@@ -409,13 +419,13 @@ static inline CGFloat lerp(CGFloat a, CGFloat b, CGFloat p)
         
         _activity.alpha = 1;
         _activity.layer.transform = CATransform3DMakeScale(1, 1, 1);
-
+        
         CGPoint offset = self.scrollView.contentOffset;
         _ignoreInset = YES;
         [self.scrollView setContentInset:UIEdgeInsetsMake(kOpenedViewHeight + self.originalContentInset.top, self.originalContentInset.left, self.originalContentInset.bottom, self.originalContentInset.right)];
         _ignoreInset = NO;
         [self.scrollView setContentOffset:offset animated:NO];
-
+        
         self.refreshing = YES;
         _canRefresh = NO;
     }

@@ -12,3 +12,12 @@
     #import <UIKit/UIKit.h>
     #import <Foundation/Foundation.h>
 #endif
+
+#define u(x) [NSURL URLWithString:(x)]
+#define _int(x) [NSNumber numberWithInt:(x)]
+#define _double(x) [NSNumber numberWithDouble:(x)]
+#define _bool(x) [NSNumber numberWithBool:(x)]
+#define _(x) NSLocalizedString(x,x)
+#define IS_IPHONE (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
+#define IS_IPAD (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+#define IS_IPHONE4INCH ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone && [UIScreen mainScreen].bounds.size.height == 568.0)

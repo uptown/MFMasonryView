@@ -14,7 +14,8 @@ typedef enum {
     MFDataProviderLoaded,
     MFDataProviderRefeshing,
     MFDataProviderGettingMore,
-    MFDataProviderNotAvailable
+    MFDataProviderNotAvailable,
+    MFDataProviderFailed
 } MFDataProviderState;
 
 typedef void (^MFDataProviderCallback)(id data);
@@ -36,13 +37,20 @@ typedef void (^MFDataProviderCallback)(id data);
 }
 @property (nonatomic, readonly) MFDataProviderState state;
 @property (nonatomic, weak) id<MFDataProviderDelegate> delegate;
+@property (nonatomic, readonly) NSDate *lastUpdatedDate;
+@property (nonatomic, strong) id params;
+
+- (id)initWithParams:(id)params;
 
 - (void)refresh;
+- (void)forceRefresh;
 - (void)load;
 - (void)getMore;
 - (BOOL)canGetMore;
 - (BOOL)canRefresh;
-
+- (void)reservedLoad;
+- (void)setNotAvailable;
+- (void)setFailed;
 
 // Protected ...
 - (void)getMoreWithCallback:(MFDataProviderCallback)callback;
@@ -50,4 +58,5 @@ typedef void (^MFDataProviderCallback)(id data);
 - (BOOL)getMoreProcess:(id)data;
 - (BOOL)refreshProcess:(id)data;
 - (BOOL)loadProcess:(id)data;
+- (void)filter:(id)filter;
 @end

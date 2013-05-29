@@ -19,8 +19,10 @@
 
 - (id)initWithReuseIdentifier:(NSString *)reuseIdentifier;
 
-+ (MFMasonryViewCell *)getReusedCellFromQuiltView:(MFMasonryView *)quiltView withReusedentifier:(NSString*)reuseIdentifier;
++ (MFMasonryViewCell *)getReusedCellFromMasonryView:(MFMasonryView *)quiltView withReusedentifier:(NSString*)reuseIdentifier;
 - (void)applyData:(id)data;
 + (CGFloat)getHeightWithWidth:(CGFloat)width forData:(id)data;
 
+- (void)sendDataToMasonryView:(id)data;
+- (void)prepareForReuse;
 @end

@@ -8,7 +8,6 @@
 
 #import "MFMasonryViewCell.h"
 #import "MFMasonryView.h"
-
 @implementation MFMasonryViewCell
 
 @synthesize reuseIdentifier = _reuseIdentifier;
@@ -28,16 +27,18 @@
     return self;
 }
 
-+ (MFMasonryViewCell *)getReusedCellFromQuiltView:(MFMasonryView *)masonryView withReusedentifier:(NSString*)reuseIdentifier{
++ (MFMasonryViewCell *)getReusedCellFromMasonryView:(MFMasonryView *)masonryView withReusedentifier:(NSString*)reuseIdentifier{
     
     NSString *className = NSStringFromClass([self class]);
     
     MFMasonryViewCell *cell;
+    if(masonryView)
+        cell = [masonryView dequeueReusableCellWithReuseIdentifier:reuseIdentifier];
     if(cell == nil){
         
         NSString *nibName = [[NSBundle mainBundle] pathForResource:className ofType:@"nib"]? className : nil;
         if(!nibName){
-            if( (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)){
+            if(IS_IPHONE){
                 NSString *iPhoneNibName = [[NSBundle mainBundle] pathForResource:[NSString stringWithFormat:@"%@_iPhone",className] ofType:@"nib"];
                 if(iPhoneNibName){
                     nibName = [NSString stringWithFormat:@"%@_iPhone",className];
@@ -74,5 +75,15 @@
 
 + (CGFloat)getHeightWithWidth:(CGFloat)width forData:(id)data{
     return width;
+}
+
+
+- (void)sendDataToMasonryView:(id)data{
+    if([self.superview isKindOfClass:[MFMasonryView class]]){
+        [(MFMasonryView*)self.superview receiveData:data fromCell:self];
+    }
+}
+
+- (void)prepareForReuse{
 }
 @end

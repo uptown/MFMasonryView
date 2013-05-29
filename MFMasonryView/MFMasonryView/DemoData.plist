@@ -16,6 +16,36 @@
 	</dict>
 	<dict>
 		<key>height</key>
+		<integer>75</integer>
+		<key>color</key>
+		<string>orange</string>
+	</dict>
+	<dict>
+		<key>height</key>
+		<integer>20</integer>
+		<key>color</key>
+		<string>blue</string>
+	</dict>
+	<dict>
+		<key>height</key>
+		<integer>75</integer>
+		<key>color</key>
+		<string>orange</string>
+	</dict>
+	<dict>
+		<key>height</key>
+		<integer>20</integer>
+		<key>color</key>
+		<string>blue</string>
+	</dict>
+	<dict>
+		<key>height</key>
+		<integer>120</integer>
+		<key>color</key>
+		<string>white</string>
+	</dict>
+	<dict>
+		<key>height</key>
 		<integer>45</integer>
 		<key>color</key>
 		<string>red</string>

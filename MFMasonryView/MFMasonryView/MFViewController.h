@@ -9,6 +9,6 @@
 #import <UIKit/UIKit.h>
 #import "MFMasonryBasedViewController.h"
 
-@interface MFViewController : MFMasonryBasedViewController
-
+@interface MFViewController : MFMasonryBasedViewController<UISearchBarDelegate>
+@property (nonatomic, strong) IBOutlet UISearchBar *searchBar;
 @end
